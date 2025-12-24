@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ELEC API SOLO</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Top Navbar ===== -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <div class="brand" role="banner" aria-label="HoYoCodex">
+        <div class="brand__mark">Gen</div>
+        <div class="brand__name">shin</div>
+      </div>
+
+     
+    </div>
+
+    <!-- Center Search -->
+    <div class="topbar__center">
+      <form id="searchForm" class="search" autocomplete="off">
+        <div class="searchWrap" id="searchWrap">
+          <div class="search__pill" id="searchPill" aria-haspopup="dialog" aria-expanded="false">
+            <span class="search__icon" aria-hidden="true">⌕</span>
+            <input
+              id="searchInput"
+              class="search__input"
+              type="text"
+              placeholder="Search characters, weapons, artifacts..."
+              aria-label="Search"
+            />
+            <button id="clearBtn" class="search__clear" type="button" aria-label="Clear search">×</button>
+          </div>
+
+          <!-- SLIDE-DOWN SEARCH PANEL (minimal, anchored to search) -->
+          <div id="searchPanel" class="searchPanel" aria-label="Search filters" hidden>
+            <div class="searchPanel__inner">
+              <div class="spRow">
+                <div class="spField">
+                  <label class="spLabel" for="spScope">Scope</label>
+                  <select id="spScope" class="spInput">
+                    <option value="all">All</option>
+                    <option value="characters">Characters</option>
+                    <option value="weapons">Weapons</option>
+                    <option value="artifacts">Artifacts</option>
+                  </select>
+                </div>
+
+                <div class="spField">
+                  <label class="spLabel" for="spMatch">Match</label>
+                  <select id="spMatch" class="spInput">
+                    <option value="contains">Contains</option>
+                    <option value="starts">Starts</option>
+                  </select>
+                </div>
+
+                <div class="spField">
+                  <label class="spLabel" for="spSort">Sort</label>
+                  <select id="spSort" class="spInput">
+                    <option value="az">A–Z</option>
+                    <option value="za">Z–A</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="spError" class="spError" hidden></div>
+
+              <div class="spActions">
+                <button id="spApply" class="btn btn--primary" type="submit">Apply</button>
+                <button id="spClose" class="btn btn--ghost" type="button">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Right Category Icons + Docs + Theme -->
+    <div class="topbar__right">
+      <div class="navicons" aria-label="Categories">
+        <button class="navicons__item" type="button" data-category="all" title="General">
+          <span class="navicons__glyph" aria-hidden="true">◼</span>
+          <span class="navicons__label">General</span>
+        </button>
+        <button class="navicons__item is-active" type="button" data-category="characters" title="Characters">
+          <span class="navicons__glyph" aria-hidden="true">👤</span>
+          <span class="navicons__label">Characters</span>
+        </button>
+        <button class="navicons__item" type="button" data-category="weapons" title="Weapons">
+          <span class="navicons__glyph" aria-hidden="true">🗡</span>
+          <span class="navicons__label">Weapons</span>
+        </button>
+        <button class="navicons__item" type="button" data-category="artifacts" title="Artifacts">
+          <span class="navicons__glyph" aria-hidden="true">🏺</span>
+          <span class="navicons__label">Artifacts</span>
+        </button>
+      </div>
+
+      <button id="docsBtn" class="btn btn--ghost" type="button" title="API Documentation">
+        API Docs
+      </button>
+
+      <button id="themeToggle" class="btn btn--ghost" type="button" title="Toggle theme">
+        Dark
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Minimal Controls Row ===== -->
+  <section class="controlsbar">
+    <div class="pillrow" aria-label="Sort controls">
+      <button class="pill is-active" type="button" data-sort="az">A–Z</button>
+      <button class="pill" type="button" data-sort="za">Z–A</button>
+      <button id="randomBtn" class="pill" type="button" title="Open a random item">Random</button>
+    </div>
+  </section>
+
+  <!-- ===== Main Layout ===== -->
+  <main class="layout">
+    <section class="content">
+      <div class="content__header">
+        <h1 class="title">ELEC Project Api Solo </h1>
+        <p class="subtitle">Data Source: genshin.jmp.blue (JSON + images)</p>
+      </div>
+
+      <div id="statusBar" class="statusbar" aria-live="polite"></div>
+      <div id="errorBox" class="error" role="alert" hidden></div>
+
+      <div id="results" class="grid" aria-label="Results container"></div>
+
+      <div class="loadmoreWrap">
+        <button id="loadMoreBtn" class="btn btn--ghost loadmore" type="button" hidden>
+          Load More
+        </button>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <div class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">Quick Navigation</h2>
+        </div>
+
+        <div class="quicknav" aria-label="Quick navigation">
+          <button class="quicknav__tile" type="button" data-quick="characters">
+            <span class="quicknav__ico" aria-hidden="true">👤</span>
+            <span class="quicknav__txt">Characters</span>
+          </button>
+          <button class="quicknav__tile" type="button" data-quick="weapons">
+            <span class="quicknav__ico" aria-hidden="true">🗡</span>
+            <span class="quicknav__txt">Weapons</span>
+          </button>
+          <button class="quicknav__tile" type="button" data-quick="artifacts">
+            <span class="quicknav__ico" aria-hidden="true">🏺</span>
+            <span class="quicknav__txt">Artifacts</span>
+          </button>
+          <button class="quicknav__tile" type="button" data-quick="all">
+            <span class="quicknav__ico" aria-hidden="true">◼</span>
+            <span class="quicknav__txt">General</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- <div class="panel">
+        <div class="panel__head">
+          <h2 class="panel__title">How Search Works</h2>
+        </div>
+        <ul class="tips">
+          <li>Click a category to browse instantly.</li>
+          <li>Tap search.</li>
+          <li>Click a card to open details.</li>
+        </ul>
+      </div> -->
+    </aside>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <span>Credits:</span>
+      <span class="footer__link">genshin.jmp.blue</span>
+      <span class="dot">•</span>
+      
+    </div>
+  </footer>
+
+  <!-- ===== Detail Modal ===== -->
+  <div id="modalOverlay" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__top">
+        <div class="modal__topLeft">
+          <h2 id="modalTitle" class="modal__title">Details</h2>
+          <p id="modalSubtitle" class="modal__subtitle"></p>
+        </div>
+        <button id="modalClose" class="btn btn--ghost" type="button" aria-label="Close modal">×</button>
+      </div>
+
+      <div id="modalBody" class="modal__body"></div>
+
+      <div class="modal__bottom">
+        <button id="modalPrimary" class="btn btn--primary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== API Docs Modal ===== -->
+  <div id="docsOverlay" class="modal-overlay" hidden>
+    <div class="modal modal--wide" role="dialog" aria-modal="true" aria-labelledby="docsTitle">
+      <div class="modal__top">
+        <div class="modal__topLeft">
+          <h2 id="docsTitle" class="modal__title">API Documentation</h2>
+          <p class="modal__subtitle">genshin.jmp.blue used for JSON + images</p>
+        </div>
+        <button id="docsClose" class="btn btn--ghost" type="button" aria-label="Close docs">×</button>
+      </div>
+
+      <div class="modal__body">
+        <div class="docgrid">
+          <section class="doccard">
+            <h3>1. Base URL</h3>
+            <code class="code">https://genshin.jmp.blue</code>
+          </section>
+
+          <section class="doccard">
+            <h3>2. Endpoints (3+)</h3>
+            <ul class="doclist">
+              <li><code class="code">GET /characters</code></li>
+              <li><code class="code">GET /characters/{id}</code></li>
+              <li><code class="code">GET /weapons</code></li>
+              <li><code class="code">GET /weapons/{id}</code></li>
+              <li><code class="code">GET /artifacts</code></li>
+              <li><code class="code">GET /artifacts/{id}</code></li>
+              <li><code class="code">GET /{type}/{id}/icon</code> (images)</li>
+              <li><code class="code">GET /characters/{id}/card</code> (character card art)</li>
+              <li><code class="code">GET /artifacts/{id}/flower-of-life</code> (artifact art)</li>
+            </ul>
+          </section>
+
+          <section class="doccard">
+            <h3>3. Required Parameters</h3>
+            <p>Path parameters:</p>
+            <ul class="doclist">
+              <li><code class="code">{type}</code> and <code class="code">{id}</code></li>
+            </ul>
+          </section>
+
+          <section class="doccard">
+            <h3>4. Authentication</h3>
+            <p><b>None</b> (no API key, no OAuth).</p>
+          </section>
+
+          <section class="doccard">
+            <h3>5. Sample JSON (fields used)</h3>
+            <p class="muted">Example: <code class="code">GET /characters/nahida</code></p>
+            <pre class="pre"><code>{
+  "name": "Nahida",
+  "title": "...",
+  "vision": "Dendro",
+  "weapon": "Catalyst",
+  "nation": "Sumeru",
+  "rarity": 5,
+  "description": "..."
+}</code></pre>
+          </section>
+
+          <section class="doccard">
+            <h3>6–10. fetch, DOM, validation, loading, errors</h3>
+            <ul class="doclist">
+              <li><code class="code">fetch()</code> + <code class="code">async/await</code></li>
+              <li>Cards + images + modal</li>
+              <li>Error handling: invalid input, no results, failed API call</li>
+              <li>Loading state: spinner + text</li>
+              <li>Buttons disabled while loading</li>
+              <li><b>Element aura hover</b>: uses <code class="code">vision</code> field from character detail JSON</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+
+      <div class="modal__bottom">
+        <button id="docsPrimary" class="btn btn--primary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
